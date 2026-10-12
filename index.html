@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>для порванного прзика</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        /* Жесткий черный фон */
+        html, body {
+            background-color: #0d0d0d !important;
+            background: #0d0d0d !important;
+            min-height: 100vh;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: #fff;
+        }
+        .container {
+            text-align: center;
+            width: 100%;
+            padding: 20px;
+        }
+        /* Плоский 2D-контейнер для сердца */
+        .heart-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+        }
+        /* Стили для бегущих по контуру слов */
+        .word {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(255, 75, 110, 0.4);
+            transition: color 0.3s, text-shadow 0.3s;
+            cursor: pointer;
+            user-select: none;
+        }
+        .word:hover {
+            color: #ffffff !important;
+            text-shadow: 0 0 25px rgba(255, 75, 110, 1);
+            z-index: 10;
+        }
+        /* Романтическая подпись внизу */
+        .love-note {
+            margin-top: 40px;
+            font-size: 18px;
+            color: #888;
+            letter-spacing: 1px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="heart-container" id="heart"></div>
+        <!-- Программа сама вставит сюда текст из настроек ниже -->
+        <div class="love-note" id="loveNote"></div>
+    </div>
+
+    <script>
+        // =================================================================
+        // НАСТРОЙКИ СЛОВ И ТЕКСТА (ИЗМЕНЯЙТЕ ИХ ЗДЕСЬ):
+        
+        const THE_WORD = "i love papa"; // Слово, которое крутится в сердце
+        
+        const BOTTOM_TEXT = "для тебя"; // ТЕКСТ СНИЗУ СТРАНИЦЫ
+        
+        // =================================================================
+
+        // Применяем нижний текст на страницу
+        document.getElementById('loveNote').innerText = BOTTOM_TEXT;
+
+        const heartContainer = document.getElementById('heart');
+        const totalWords = 40; // Сколько слов будет на контуре сердца
+        const wordElements = [];
+
+        // Создаем слова и расставляем их по форме 2D-сердца
+        for (let i = 0; i < totalWords; i++) {
+            const wordEl = document.createElement('div');
+            wordEl.className = 'word';
+            wordEl.innerText = THE_WORD;
+
+            // Разные милые оттенки розового и красного
+            const colors = ['#ff4b6e', '#ff6b8b', '#ff8da1', '#ff3366'];
+            wordEl.style.color = colors[i % colors.length];
+            wordEl.style.fontSize = `${14 + (i % 4)}px`;
+
+            heartContainer.appendChild(wordEl);
+            
+            // Запоминаем стартовое смещение для каждого слова, чтобы они шли друг за другом
+            wordElements.push({
+                element: wordEl,
+                offset: (i / totalWords) * Math.PI * 2
+            });
+        }
+
+        let time = 0;
+        // Скорость вращения
+        const speed = 0.008; 
+
+        function animate() {
+            time += speed;
+
+            wordElements.forEach(item => {
+                // Вычисляем угол для текущего слова с учетом времени
+                const t = item.offset + time;
+
+                // Классическая 2D математическая формула сердца (Cardioid)
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+
+                // Масштабируем под размеры контейнера
+                const scale = 11; 
+                const posX = x * scale;
+                const posY = y * scale;
+
+                // Двигаем элементы строго по осям X и Y
+                item.element.style.left = `calc(50% + ${posX}px)`;
+                item.element.style.top = `calc(50% + ${posY}px)`;
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Запуск постоянного движения
+        animate();
+    </script>
+</body>
+</html>
